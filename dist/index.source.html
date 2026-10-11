@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>QR Studio Pro · Next-Gen Vector QR Workstation</title>
+  <meta name="description" content="Professional client-side QR design workstation. Real-time vector rendering, custom shapes, multi-stop gradients, brand emblems, and 4K export.">
+  <meta name="theme-color" content="#090d16">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('qrs.theme');
+        if (!t) t = 'dark';
+        document.documentElement.dataset.theme = t;
+        if (localStorage.getItem('qrs.motion') === 'off') document.documentElement.dataset.motion = 'off';
+      } catch (e) {}
+    })();
+  </script>
+  <script type="module" crossorigin src="./assets/main-B7q7O-0M.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/main-Dg-gvptk.css">
+</head>
+<body class="studio-app">
+  <!-- Brand Symbol Gradient -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="bm-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#00f5a0"/>
+        <stop offset="50%" stop-color="#00d8f6"/>
+        <stop offset="100%" stop-color="#3b82f6"/>
+      </linearGradient>
+    </defs>
+    <symbol id="brand-mark" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="16" fill="url(#bm-grad)"/>
+      <g fill="none" stroke="#fff" stroke-width="4">
+        <rect x="9" y="9" width="19" height="19" rx="5"/>
+        <rect x="36" y="9" width="19" height="19" rx="5"/>
+        <rect x="9" y="36" width="19" height="19" rx="5"/>
+      </g>
+      <g fill="#fff">
+        <rect x="16" y="16" width="5" height="5" rx="1.5"/>
+        <rect x="43" y="16" width="5" height="5" rx="1.5"/>
+        <rect x="16" y="43" width="5" height="5" rx="1.5"/>
+      </g>
+      <g fill="#fbbf24">
+        <rect x="37" y="37" width="7.5" height="7.5" rx="2"/>
+        <rect x="47.5" y="47.5" width="7.5" height="7.5" rx="2"/>
+        <rect x="47.5" y="37" width="7.5" height="7.5" rx="2"/>
+      </g>
+    </symbol>
+  </svg>
+
+  <!-- Ambient Backdrop -->
+  <div class="ambient" aria-hidden="true">
+    <span class="glow glow-a"></span>
+    <span class="glow glow-b"></span>
+    <span class="ambient-grid"></span>
+    <canvas id="bg-canvas"></canvas>
+  </div>
+
+  <a class="skip-link" href="#editor">Skip to editor</a>
+
+  <!-- ================= TOP APP BAR ================= -->
+  <header class="app-header">
+    <div class="header-left">
+      <a class="app-brand" href="./" aria-label="QR Studio Pro Home">
+        <div class="brand-symbol">
+          <svg class="brand-logo" width="30" height="30" aria-hidden="true"><use href="#brand-mark"/></svg>
+          <div class="brand-glow"></div>
+        </div>
+        <div class="brand-title-wrap">
+          <span class="brand-title">QR STUDIO</span>
+          <span class="pro-badge">PRO 2.0</span>
+        </div>
+      </a>
+      <div class="status-pill" title="All processing is 100% local and private">
+        <span class="dot-live"></span>
+        <span class="status-text">Client-Side Engine</span>
+      </div>
+    </div>
+
+    <!-- Center Quick Tools Dock -->
+    <div class="header-center">
+      <nav class="tools-dock" aria-label="Quick Tools">
+        <button class="dock-btn" id="btn-open-presets" type="button" title="Open Ready-made Templates">
+          <i data-i="sparkles" data-size="15"></i><span>Templates</span>
+        </button>
+        <button class="dock-btn" id="btn-open-scanner" type="button" title="Camera & Image Scanner">
+          <i data-i="scan" data-size="15"></i><span>Scanner</span>
+        </button>
+        <button class="dock-btn" id="btn-open-batch" type="button" title="Batch Multi-Code Generator">
+          <i data-i="layers" data-size="15"></i><span>Batch</span>
+        </button>
+        <button class="dock-btn" id="btn-open-saved" type="button" title="Saved Designs Vault">
+          <i data-i="folder" data-size="15"></i><span>Vault</span><b class="count" id="saved-count" hidden>0</b>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Header Actions -->
+    <div class="header-right">
+      <div class="header-action-group">
+        <!-- Multicolor Accent Picker Popover -->
+        <div class="accent-picker-wrapper">
+          <button class="icon-tool-btn accent-trigger" id="accent-toggle" type="button" title="Switch UI Accent Color" aria-haspopup="true" aria-expanded="false">
+            <span class="accent-current-dot" aria-hidden="true"></span>
+          </button>
+          <div class="accent-menu" id="accent-menu" hidden>
+            <div class="accent-menu-title">
+              <span>Studio Accent Color</span>
+              <span class="accent-pill-tag">Multicolor</span>
+            </div>
+            <div class="accent-options">
+              <button type="button" class="accent-opt is-active" data-accent="emerald" title="Cyber Emerald">
+                <span class="accent-chip" style="background: linear-gradient(135deg, #00f5a0, #00d8f6)"></span>
+                <span>Emerald</span>
+              </button>
+              <button type="button" class="accent-opt" data-accent="violet" title="Electric Violet">
+                <span class="accent-chip" style="background: linear-gradient(135deg, #a855f7, #6366f1)"></span>
+                <span>Violet</span>
+              </button>
+              <button type="button" class="accent-opt" data-accent="sunset" title="Sunset Flame">
+                <span class="accent-chip" style="background: linear-gradient(135deg, #f97316, #ec4899)"></span>
+                <span>Sunset</span>
+              </button>
+              <button type="button" class="accent-opt" data-accent="sapphire" title="Ocean Sapphire">
+                <span class="accent-chip" style="background: linear-gradient(135deg, #00d8f6, #3b82f6)"></span>
+                <span>Sapphire</span>
+              </button>
+              <button type="button" class="accent-opt" data-accent="rose" title="Rose Gold">
+                <span class="accent-chip" style="background: linear-gradient(135deg, #f43f5e, #fb7185)"></span>
+                <span>Rose</span>
+              </button>
+              <button type="button" class="accent-opt" data-accent="aurora" title="Chroma Multicolor">
+                <span class="accent-chip accent-chip-rainbow"></span>
+                <span>Multicolor</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <button class="icon-tool-btn" id="motion-toggle" type="button" aria-pressed="true" title="Toggle background ambient motion">
+          <i data-i="wind" data-size="16"></i>
+        </button>
+        <button class="icon-tool-btn" id="theme-toggle" type="button" title="Switch Theme (Light / Dark)">
+          <i data-i="sun" class="ico-sun" data-size="16"></i><i data-i="moon" class="ico-moon" data-size="16"></i>
+        </button>
+      </div>
+      <div class="studio-badge" title="Engineered & Built by Salman">
+        <i data-i="sparkles" data-size="12"></i>
+        <span>Built by <strong class="badge-author-name">Salman</strong></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= 3-COLUMN STUDIO WORKBENCH ================= -->
+  <main class="workbench">
+    <!-- PANEL 1: LEFT CONTROLS INSPECTOR (Scrollable) -->
+    <section class="panel-inspector" id="editor" aria-label="Design Inspector">
+      <!-- Step Navigation Pill Bar -->
+      <div class="inspector-tabs-bar">
+        <div class="step-nav" role="tablist" id="step-nav">
+          <span class="step-ind" aria-hidden="true"></span>
+          <button class="step is-active" role="tab" type="button" data-tab="tab-content" aria-selected="true" aria-controls="tab-content" title="Content">
+            <i data-i="link" data-size="15"></i><span>Content</span>
+          </button>
+          <button class="step" role="tab" type="button" data-tab="tab-shapes" aria-selected="false" aria-controls="tab-shapes" title="Shapes">
+            <i data-i="shapes" data-size="15"></i><span>Shapes</span>
+          </button>
+          <button class="step" role="tab" type="button" data-tab="tab-colors" aria-selected="false" aria-controls="tab-colors" title="Colors">
+            <i data-i="palette" data-size="15"></i><span>Colors</span>
+          </button>
+          <button class="step" role="tab" type="button" data-tab="tab-logo" aria-selected="false" aria-controls="tab-logo" title="Logo">
+            <i data-i="image" data-size="15"></i><span>Logo</span>
+          </button>
+          <button class="step" role="tab" type="button" data-tab="tab-frame" aria-selected="false" aria-controls="tab-frame" title="Frame">
+            <i data-i="frame" data-size="15"></i><span>Frame</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Content Panels -->
+      <div class="inspector-body">
+        <!-- 1. CONTENT PANE -->
+        <div class="pane is-active" id="tab-content" role="tabpanel">
+          <div class="section-title-row">
+            <h4>Destination Type</h4>
+            <span class="section-badge">Step 1</span>
+          </div>
+          <div class="type-grid" id="type-grid"></div>
+
+          <div class="section-title-row" style="margin-top: 18px;">
+            <h4>Configuration</h4>
+          </div>
+          <div class="form-card" id="content-form"></div>
+        </div>
+
+        <!-- 2. SHAPES PANE -->
+        <div class="pane" id="tab-shapes" role="tabpanel" hidden>
+          <div class="group">
+            <div class="section-title-row">
+              <h4>Matrix Silhouette</h4>
+              <span class="section-badge">Canvas</span>
+            </div>
+            <div class="tiles tiles-2" data-tiles="qrShape"></div>
+          </div>
+
+          <div class="group">
+            <div class="section-title-row">
+              <h4>Data Dots Shape</h4>
+              <span class="section-badge">Matrix</span>
+            </div>
+            <div class="tiles tiles-6" data-tiles="dotsType"></div>
+          </div>
+
+          <div class="group">
+            <div class="section-title-row">
+              <h4>Corner Eye Frame</h4>
+              <span class="section-badge">Outer Ring</span>
+            </div>
+            <div class="tiles tiles-6" data-tiles="cornerSquare"></div>
+          </div>
+
+          <div class="group">
+            <div class="section-title-row">
+              <h4>Corner Eye Center</h4>
+              <span class="section-badge">Inner Core</span>
+            </div>
+            <div class="tiles tiles-6" data-tiles="cornerDot"></div>
+          </div>
+
+          <div class="group">
+            <div class="section-title-row">
+              <h4>Quiet Zone Border</h4>
+              <span class="section-badge">Margin</span>
+            </div>
+            <div class="slider-card">
+              <div class="slider-field">
+                <label for="range-margin">
+                  <span class="slider-label-txt"><i data-i="dashed" data-size="14"></i> Border Width</span>
+                  <output data-out="margin">4%</output>
+                </label>
+                <input type="range" id="range-margin" data-range="margin" min="0" max="14" step="1" value="4">
+                <div class="slider-ticks">
+                  <span>0% None</span>
+                  <span>4% Standard</span>
+                  <span>14% Maximum</span>
+                </div>
+              </div>
+            </div>
+            <p class="hint">Quiet margin surrounding the QR matrix for optical camera recognition.</p>
+          </div>
+
+          <div class="group">
+            <div class="section-title-row">
+              <h4>Error Recovery Level</h4>
+              <span class="section-badge">Reed-Solomon</span>
+            </div>
+            <div class="ec-grid" role="group" aria-label="Error Recovery Level" data-chips="style.ec">
+              <button type="button" class="ec-card" data-val="L">
+                <span class="ec-head">
+                  <span class="ec-letter">L</span>
+                  <span class="ec-pct-badge">7%</span>
+                </span>
+                <span class="ec-desc">Low</span>
+              </button>
+              <button type="button" class="ec-card" data-val="M">
+                <span class="ec-head">
+                  <span class="ec-letter">M</span>
+                  <span class="ec-pct-badge">15%</span>
+                </span>
+                <span class="ec-desc">Medium</span>
+              </button>
+              <button type="button" class="ec-card" data-val="Q">
+                <span class="ec-head">
+                  <span class="ec-letter">Q</span>
+                  <span class="ec-pct-badge">25%</span>
+                </span>
+                <span class="ec-desc">Quality</span>
+              </button>
+              <button type="button" class="ec-card" data-val="H">
+                <span class="ec-head">
+                  <span class="ec-letter">H</span>
+                  <span class="ec-pct-badge">30%</span>
+                </span>
+                <span class="ec-desc">High (Logo)</span>
+              </button>
+            </div>
+            <p class="hint" id="ec-hint">H recovers 30% of damage. Best with a logo.</p>
+          </div>
+        </div>
+
+        <!-- 3. COLORS PANE -->
+        <div class="pane" id="tab-colors" role="tabpanel" hidden>
+          <div class="group">
+            <div class="section-title-row">
+              <h4>Curated Palettes</h4>
+              <span class="section-badge">Harmonies</span>
+            </div>
+            <div class="swatches-tray">
+              <div class="swatches" id="swatches"></div>
+            </div>
+          </div>
+
+          <div class="group">
+            <div class="group-row">
+              <h4 class="group-title">Dots Fill</h4>
+              <div class="seg seg-sm" role="group" data-chips="style.dotsMode">
+                <button type="button" data-val="single">Solid</button>
+                <button type="button" data-val="gradient">Gradient</button>
+              </div>
+            </div>
+            <div class="color-grid">
+              <div data-color="dotsC1" data-label="Primary Color"></div>
+              <div data-color="dotsC2" data-label="Gradient End" data-show="gradient"></div>
+            </div>
+            <div class="color-grid" data-show="gradient">
+              <div class="color-field">
+                <span class="field-label" id="lbl-gt">Gradient Type</span>
+                <div class="seg seg-sm seg-full" role="group" aria-labelledby="lbl-gt" data-chips="style.gradType">
+                  <button type="button" data-val="linear">Linear</button>
+                  <button type="button" data-val="radial">Radial</button>
+                </div>
+              </div>
+              <div class="color-field slider-field" data-show="linear">
+                <label for="range-angle" class="field-label">
+                  <span>Angle</span>
+                  <output data-out="gradAngle">45°</output>
+                </label>
+                <div class="slider-box">
+                  <input type="range" id="range-angle" data-range="gradAngle" min="0" max="360" step="5" value="45">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="group">
+            <div class="group-row">
+              <h4 class="group-title">Custom Eye Colors</h4>
+              <label class="switch-inline">
+                <span>Enabled</span>
+                <span class="switch"><input type="checkbox" data-switch="customEyes"><i></i></span>
+              </label>
+            </div>
+            <p class="hint" data-hide="customEyes">Corner eyes match the dot color.</p>
+            <div class="color-grid" data-show="customEyes">
+              <div data-color="eyeFrameC" data-label="Eye Frame"></div>
+              <div data-color="eyeDotC" data-label="Eye Center"></div>
+            </div>
+          </div>
+
+          <div class="group group-bg">
+            <h4 class="group-title">Background Canvas</h4>
+            <label class="switch-row switch-hero">
+              <span class="checker-chip" aria-hidden="true"></span>
+              <span class="switch-text">
+                <b>Transparent Background</b>
+                <small>Preserved in PNG, SVG, and WebP.</small>
+              </span>
+              <span class="switch"><input type="checkbox" data-switch="transparent" id="check-bg-transparent"><i></i></span>
+            </label>
+            <div class="color-grid" data-hide="transparent">
+              <div data-color="bg" data-label="Background Color"></div>
+            </div>
+            <p class="hint hint-warn" data-show="transparent">
+              <i data-i="info" data-size="15"></i><span>High contrast surface needed for physical scanning.</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- 4. LOGO PANE -->
+        <div class="pane" id="tab-logo" role="tabpanel" hidden>
+          <div class="group">
+            <div class="section-title-row">
+              <h4>Ready-Made Badges</h4>
+            </div>
+            <div class="logo-grid" id="logo-grid"></div>
+          </div>
+
+          <div class="group">
+            <div class="section-title-row">
+              <h4>Custom Logo Upload</h4>
+            </div>
+            <div class="dropzone" id="logo-dropzone" tabindex="0" role="button" aria-label="Upload logo">
+              <input type="file" id="input-logo-file" accept="image/*" hidden>
+              <div class="dropzone-icon"><i data-i="imageUp" data-size="24"></i></div>
+              <span><strong>Click or drop image</strong> here</span>
+              <small>PNG, SVG, or WebP. Transparent recommended.</small>
+            </div>
+            <div class="logo-active" id="logo-active" hidden>
+              <img id="logo-thumb" alt="Logo preview">
+              <div><b id="logo-name">logo.png</b><small>Centered emblem</small></div>
+              <button type="button" class="btn btn-ghost btn-sm" id="btn-remove-logo"><i data-i="trash" data-size="14"></i>Remove</button>
+            </div>
+          </div>
+
+          <div class="group two-col" data-show="logo">
+            <div class="slider-field">
+              <label for="range-logo-size"><span>Logo Scale</span><output data-out="logoSize">30%</output></label>
+              <input type="range" id="range-logo-size" data-range="logoSize" min="0.15" max="0.45" step="0.01" value="0.3">
+            </div>
+            <div class="slider-field">
+              <label for="range-logo-margin"><span>Safety Padding</span><output data-out="logoMargin">6</output></label>
+              <input type="range" id="range-logo-margin" data-range="logoMargin" min="0" max="25" step="1" value="6">
+            </div>
+          </div>
+          <label class="switch-row" data-show="logo">
+            <span class="switch-text">
+              <b>Clear Dots Behind Logo</b>
+              <small>Removes overlapping dots for sharp contrast.</small>
+            </span>
+            <span class="switch"><input type="checkbox" data-switch="hideLogoDots"><i></i></span>
+          </label>
+        </div>
+
+        <!-- 5. FRAME PANE -->
+        <div class="pane" id="tab-frame" role="tabpanel" hidden>
+          <div class="group">
+            <div class="section-title-row">
+              <h4>Frame Template</h4>
+            </div>
+            <div class="tiles tiles-frame" data-tiles="frame"></div>
+          </div>
+
+          <div class="group" data-show="frame">
+            <div class="field">
+              <label class="field-label" for="input-frame-text">Call-to-Action Text</label>
+              <input type="text" id="input-frame-text" class="input" maxlength="28" placeholder="SCAN ME" autocomplete="off">
+              <div class="chip-row" id="frame-text-chips"></div>
+            </div>
+            <div class="color-grid">
+              <div data-color="frameColor" data-label="Frame Color"></div>
+              <div data-color="frameTextColor" data-label="Text Color"></div>
+            </div>
+            <p class="hint" data-show="transparent">
+              <i data-i="info" data-size="15"></i><span>Interior remains transparent.</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL 2: CENTER HERO CANVAS (Artboard) -->
+    <section class="panel-canvas" aria-label="Interactive Artboard">
+      <div class="artboard-header">
+        <div class="artboard-title-group">
+          <span class="pulse-dot"></span>
+          <span class="artboard-title">Studio Artboard</span>
+          <span class="artboard-sub" id="preview-meta">Website</span>
+        </div>
+        <div class="seg seg-icons" role="group" id="backdrop-seg" aria-label="Backdrop Mode">
+          <button type="button" data-val="light" title="Studio Light"><i data-i="sun" data-size="14"></i></button>
+          <button type="button" data-val="dark" title="Studio Dark"><i data-i="moon" data-size="14"></i></button>
+          <button type="button" data-val="checker" title="Transparency Grid"><i data-i="checker" data-size="14"></i></button>
+        </div>
+      </div>
+
+      <!-- Main Central Visual Stage -->
+      <div class="canvas-viewport">
+        <div class="stage-ambient-aura" id="stage-aura"></div>
+        <div class="stage" id="stage" data-backdrop="dark">
+          <i class="vf vf-tl"></i><i class="vf vf-tr"></i><i class="vf vf-bl"></i><i class="vf vf-br"></i>
+          <span class="beam" aria-hidden="true"></span>
+          <img id="qr-img" alt="Vector QR Code Live Preview" draggable="false">
+          <div class="stage-msg" id="stage-msg" hidden></div>
+          <span class="sample-chip" id="sample-chip" hidden>Sample · Enter destination</span>
+        </div>
+      </div>
+
+      <!-- Diagnostic Status HUD Bar -->
+      <div class="artboard-footer">
+        <div class="health" id="health" data-level="0" aria-live="polite">
+          <div class="health-top">
+            <span class="health-badge">
+              <span id="health-ico"><i data-i="shield" data-size="15"></i></span>
+              <b id="health-title">Scan-Safe</b>
+            </span>
+            <div class="health-stats">
+              <span class="stat-tag">Contrast <strong id="diag-contrast">—</strong></span>
+              <span class="stat-tag">Capacity <strong id="diag-ec">—</strong></span>
+            </div>
+          </div>
+          <p class="health-note" id="diag-note"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL 3: RIGHT EXPORT & ACTIONS DOCK -->
+    <aside class="panel-export" aria-label="Export Console">
+      <div class="export-card">
+        <div class="export-header">
+          <h3>Export & Deliver</h3>
+          <span class="export-badge">Production Ready</span>
+        </div>
+
+        <div class="export-controls">
+          <!-- Transparent switch -->
+          <label class="switch-row switch-compact">
+            <span class="checker-chip" aria-hidden="true"></span>
+            <span class="switch-text"><b>Alpha Transparent</b></span>
+            <span class="switch"><input type="checkbox" id="quick-transparent"><i></i></span>
+          </label>
+
+          <!-- Format Pills -->
+          <div class="export-field">
+            <span class="field-label">File Format</span>
+            <div class="seg seg-sm seg-full" role="group" data-chips="export.format">
+              <button type="button" data-val="png">PNG</button>
+              <button type="button" data-val="svg">SVG</button>
+              <button type="button" data-val="pdf">PDF</button>
+              <button type="button" data-val="jpeg">JPG</button>
+              <button type="button" data-val="webp">WebP</button>
+            </div>
+          </div>
+
+          <!-- Resolution Pills -->
+          <div class="export-field">
+            <span class="field-label">Dimension</span>
+            <div class="seg seg-sm seg-full" role="group" data-chips="export.res">
+              <button type="button" data-val="512">512</button>
+              <button type="button" data-val="1024">1024</button>
+              <button type="button" data-val="2048">2048</button>
+              <button type="button" data-val="4000">4000</button>
+            </div>
+          </div>
+
+          <p class="hint export-hint" id="export-hint"></p>
+
+          <!-- HERO CTA BUTTON -->
+          <button type="button" class="btn btn-primary btn-hero" id="btn-download">
+            <span class="btn-bubble"><i data-i="download" data-size="18"></i></span>
+            <span id="download-label">Download PNG</span>
+          </button>
+
+          <!-- Secondary Actions -->
+          <div class="quick-actions-col">
+            <button type="button" class="btn btn-soft" id="btn-copy">
+              <i data-i="copy" data-size="15"></i>Copy Image
+            </button>
+            <div class="btn-split-row">
+              <button type="button" class="btn btn-soft btn-sm" id="btn-save">
+                <i data-i="save" data-size="14"></i>Save Vault
+              </button>
+              <button type="button" class="btn btn-soft btn-sm" id="btn-json">
+                <i data-i="json" data-size="14"></i>JSON Spec
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="export-footer-info">
+          <small><i data-i="lock" data-size="12"></i> 100% Client-side · Zero cloud upload</small>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- ================= DIALOG MODALS ================= -->
+  <!-- PRESETS GALLERY -->
+  <dialog class="modal modal-xl modal-presets-dialog" id="modal-presets" aria-labelledby="t-presets">
+    <header class="modal-head">
+      <div class="modal-title">
+        <span class="modal-ico"><i data-i="sparkles" data-size="18"></i></span>
+        <div>
+          <h3 id="t-presets">Studio Presets & Templates</h3>
+          <p>Handcrafted vector looks designed for instant 1-click styling.</p>
+        </div>
+      </div>
+      <button class="icon-tool-btn" type="button" data-close aria-label="Close dialog"><i data-i="x" data-size="16"></i></button>
+    </header>
+    <div class="modal-body modal-presets-body">
+      <!-- Filter Toolbar -->
+      <div class="preset-toolbar">
+        <div class="preset-filter-pills" id="preset-filter-pills">
+          <button type="button" class="filter-pill is-active" data-cat="all">All Looks <span class="pill-badge">14</span></button>
+          <button type="button" class="filter-pill" data-cat="featured">Featured</button>
+          <button type="button" class="filter-pill" data-cat="gradients">Gradients</button>
+          <button type="button" class="filter-pill" data-cat="minimal">Minimal</button>
+          <button type="button" class="filter-pill" data-cat="badges">Frames & Pay</button>
+          <button type="button" class="filter-pill" data-cat="dark">Dark Theme</button>
+        </div>
+        <div class="preset-search-box">
+          <i data-i="search" data-size="13"></i>
+          <input type="text" id="preset-search-input" placeholder="Search looks..." autocomplete="off">
+        </div>
+      </div>
+
+      <!-- Presets Grid Container -->
+      <div class="preset-grid" id="preset-grid"></div>
+    </div>
+  </dialog>
+
+  <!-- SCANNER -->
+  <dialog class="modal modal-md" id="modal-scanner" aria-labelledby="t-scanner">
+    <header class="modal-head">
+      <div class="modal-title">
+        <span class="modal-ico"><i data-i="scan" data-size="18"></i></span>
+        <div>
+          <h3 id="t-scanner">QR Scanner & Inspector</h3>
+          <p>Scan camera or drop an existing code image.</p>
+        </div>
+      </div>
+      <button class="icon-tool-btn" type="button" data-close aria-label="Close dialog"><i data-i="x" data-size="16"></i></button>
+    </header>
+    <div class="modal-body">
+      <div class="seg seg-full" role="group" id="scan-mode">
+        <button type="button" data-val="camera"><i data-i="video" data-size="15"></i>Camera</button>
+        <button type="button" data-val="upload"><i data-i="imageUp" data-size="15"></i>Upload Image</button>
+      </div>
+
+      <div class="scan-test">
+        <span>Designing a code? Test current render.</span>
+        <button type="button" class="btn btn-soft btn-sm" id="btn-test-current">
+          <i data-i="clipboard" data-size="14"></i>Test Active Design
+        </button>
+      </div>
+
+      <div class="scan-pane" id="scan-camera">
+        <div class="camera">
+          <video id="scanner-video" playsinline muted></video>
+          <canvas id="scanner-canvas" hidden></canvas>
+          <div class="reticle"><i class="vf vf-tl"></i><i class="vf vf-tr"></i><i class="vf vf-bl"></i><i class="vf vf-br"></i><span class="laser"></span></div>
+          <p class="camera-idle" id="camera-idle">Camera inactive</p>
+        </div>
+        <div class="btn-row btn-row-center">
+          <button type="button" class="btn btn-soft" id="btn-start-camera"><i data-i="video" data-size="15"></i>Start Camera</button>
+          <button type="button" class="btn btn-soft" id="btn-stop-camera" hidden><i data-i="videoOff" data-size="15"></i>Stop Camera</button>
+        </div>
+      </div>
+
+      <div class="scan-pane" id="scan-upload" hidden>
+        <div class="dropzone" id="scan-dropzone" tabindex="0" role="button">
+          <input type="file" id="input-scan-file" accept="image/*" hidden>
+          <div class="dropzone-icon"><i data-i="imageUp" data-size="24"></i></div>
+          <span><strong>Drop QR image here</strong> or browse</span>
+          <small>Screenshot, photo or file containing a QR code.</small>
+        </div>
+      </div>
+
+      <p class="scan-error" id="scan-error" role="alert" hidden></p>
+
+      <div class="scan-result" id="scan-result" hidden>
+        <div class="scan-result-head"><i data-i="ok" data-size="16"></i><b>Code Read Successfully</b></div>
+        <pre id="scan-payload"></pre>
+        <div class="btn-row">
+          <button type="button" class="btn btn-soft btn-sm" id="btn-copy-scanned"><i data-i="copy" data-size="14"></i>Copy</button>
+          <a class="btn btn-soft btn-sm" id="btn-open-scanned" href="#" target="_blank" rel="noopener noreferrer" hidden><i data-i="open" data-size="14"></i>Open Link</a>
+          <button type="button" class="btn btn-primary btn-sm" id="btn-load-scanned"><i data-i="pencil" data-size="14"></i>Edit in Studio</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- BATCH GENERATOR -->
+  <dialog class="modal modal-md" id="modal-batch" aria-labelledby="t-batch">
+    <header class="modal-head">
+      <div class="modal-title">
+        <span class="modal-ico"><i data-i="layers" data-size="18"></i></span>
+        <div>
+          <h3 id="t-batch">Batch Generator</h3>
+          <p>Bulk generate QR codes using current active style.</p>
+        </div>
+      </div>
+      <button class="icon-tool-btn" type="button" data-close aria-label="Close dialog"><i data-i="x" data-size="16"></i></button>
+    </header>
+    <div class="modal-body">
+      <div class="field">
+        <label class="field-label" for="batch-text">Entries (one per line)</label>
+        <textarea id="batch-text" class="input batch-text" rows="5" placeholder="https://example.com/item-1&#10;https://example.com/item-2" spellcheck="false"></textarea>
+        <p class="hint" id="batch-count">0 items ready</p>
+      </div>
+      <div class="two-col">
+        <div>
+          <span class="field-label">Format</span>
+          <div class="seg seg-sm seg-full" role="group" data-chips="batch.format">
+            <button type="button" data-val="png">PNG</button>
+            <button type="button" data-val="svg">SVG</button>
+            <button type="button" data-val="pdf">PDF</button>
+            <button type="button" data-val="jpeg">JPG</button>
+          </div>
+        </div>
+        <div>
+          <span class="field-label">Size</span>
+          <div class="seg seg-sm seg-full" role="group" data-chips="batch.res">
+            <button type="button" data-val="512">512</button>
+            <button type="button" data-val="1024">1024</button>
+            <button type="button" data-val="2048">2048</button>
+          </div>
+        </div>
+      </div>
+      <div class="progress" id="batch-progress" hidden>
+        <div class="progress-bar"><i id="batch-bar"></i></div>
+        <span id="batch-status">0 / 0</span>
+      </div>
+      <button type="button" class="btn btn-primary" id="btn-run-batch">
+        <i data-i="archive" data-size="16"></i>Generate & Download ZIP
+      </button>
+    </div>
+  </dialog>
+
+  <!-- SAVED DESIGNS VAULT -->
+  <dialog class="modal modal-md" id="modal-saved" aria-labelledby="t-saved">
+    <header class="modal-head">
+      <div class="modal-title">
+        <span class="modal-ico"><i data-i="folder" data-size="18"></i></span>
+        <div>
+          <h3 id="t-saved">My Design Vault</h3>
+          <p>Saved in this browser. Backup as JSON to sync.</p>
+        </div>
+      </div>
+      <button class="icon-tool-btn" type="button" data-close aria-label="Close dialog"><i data-i="x" data-size="16"></i></button>
+    </header>
+    <div class="modal-body">
+      <div class="btn-row btn-row-wrap">
+        <button type="button" class="btn btn-soft btn-sm" id="btn-export-current"><i data-i="json" data-size="14"></i>Save Active</button>
+        <button type="button" class="btn btn-soft btn-sm" id="btn-export-all"><i data-i="archive" data-size="14"></i>Backup All</button>
+        <button type="button" class="btn btn-soft btn-sm" id="btn-import"><i data-i="fileUp" data-size="14"></i>Import JSON</button>
+        <input type="file" id="input-import" accept=".json,application/json" hidden>
+      </div>
+      <details class="json-guide">
+        <summary><i data-i="info" data-size="14"></i>JSON Format Spec</summary>
+        <div class="json-guide-body">
+          <p class="hint">Every field is optional. Missing values use defaults.</p>
+          <pre id="json-sample"></pre>
+          <button type="button" class="btn btn-soft btn-sm" id="btn-copy-sample"><i data-i="copy" data-size="14"></i>Copy Schema</button>
+        </div>
+      </details>
+      <div class="saved-list" id="saved-list"></div>
+    </div>
+  </dialog>
+
+  <!-- Toast notification portal -->
+  <div class="toasts" id="toasts" popover="manual" role="status" aria-live="polite"></div>
+</body>
+</html>

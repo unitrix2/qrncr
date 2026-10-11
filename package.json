@@ -1,0 +1,22 @@
+{
+  "name": "qr-designer-pro",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node build-deploy.js",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^8.3.0"
+  },
+  "dependencies": {
+    "canvas-confetti": "^1.9.4",
+    "jspdf": "^4.2.1",
+    "jsqr": "^1.4.0",
+    "jszip": "^3.10.2",
+    "lucide": "^1.54.0",
+    "qr-code-styling": "^1.9.2"
+  }
+}
